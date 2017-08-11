@@ -1,4 +1,4 @@
-//const User = require('../models/user');
+const User = require('../models/user');
 const Login = require('../models/login');
 const Hospital = require('../models/hospital');
 const config = require('../config/database'); 
@@ -147,17 +147,126 @@ module.exports = (router) => {
      
        //Get Branches
     router.get('/getBranches',(req,res)=>{
-        Hospital.find({},(err,hospital) => {
-            if(err) {
-                res.json({ success:false , message:err});
-            } else {
-                if(!hospital){
-                    res.json({ success:false , message:'No hospitals found!'});
+        id= "598c437ab2cc052920459545";
+         if(!id){
+            res.json({ success:false , message:'No hospital id was provided!!'});
+        } else {
+            Hospital.findOne({ _id: id } , (err,hospital) => {
+                if(err){
+                    res.json({ success:false , message:'Not a valid hospital id!!'});
                 } else {
-                    res.json({ success:true , message:hospital});
+                    if(!hospital){
+                        res.json({ success:false , message: 'No hospital found'});
+                    } else {
+                        res.json({ success:true , message:hospital});
+                    }
                 }
+            });
+        }
+    });
+
+     router.post('/getHospitalDetail',(req,res)=>{
+        //console.log(req.body.id);
+         if(!req.body.id){
+            res.json({ success:false , message:'No hospital id was provided!!'});
+        } else {
+            Hospital.findOne({ _id: req.body.id } , (err,hospitalDetail) => {
+                if(err){
+                    res.json({ success:false , message:'Not a valid hospital id!!'});
+                } else {
+                    if(!hospitalDetail){
+                        res.json({ success:false , message: 'No hospital found'});
+                    } else {
+                        
+                        User.find({ hospitalId: req.body.id } , (err,hospitalAdminDetail) => {
+                    if(!hospitalAdminDetail){
+                        res.json({ success:false , message: 'No hospital found'});
+                    } else {
+                        res.json({ success:true , message:hospitalDetail, data:hospitalAdminDetail});
+                    }
+                    
+                });
+                    }
+                }
+            });
+        }
+    });
+    router.post('/addHospitalAdmin',(req,res)=>{
+      //  console.log(req.body.hospitalId);
+         let user = new User({
+            hospitalId:req.body.hospitalId,
+            name:req.body.name,
+            gender:req.body.gender,
+            email:req.body.email,
+            phoneno:req.body.phoneno,
+            technicalno:req.body.technicalno,
+            username:req.body.username,
+            password:req.body.password,
+            usertype:'hospital_admin'
+        });
+
+        user.save((err)=>{
+            if(err){
+                res.json({ success:false , message:err });
+            } else {
+                User.find({ hospitalId: req.body.hospitalId } , (err,hospitalAdminDetail) => {
+                    if(!hospitalAdminDetail){
+                        res.json({ success:false , message: 'No hospital found'});
+                    } else {
+                        res.json({ success:true , message:hospitalAdminDetail});
+                    }
+                    
+                });
             }
         });
+    });
+
+     router.post('/getBranchDetail',(req,res)=>{
+        const [hospital_id, branch_id] = req.body.branchid.split('-');
+     // console.log(hospital_id);
+        Hospital.findOne({_id:hospital_id}, (err, hospitalDet) =>{
+               if(err){
+                        res.json({ success:false , message: 'Not a valid hospital id'});
+                    } else {
+                        
+                       if(hospitalDet.branchDetails._id == branch_id)
+                        {
+                              res.json({ success:false , message: 'Not a valid hospital id'});
+                        } else {
+                            res.json({ success:false , message: hospitalDet});
+                        }
+                    }
+        });
+        
+    });
+     router.post('/hospitalBranchAdmin',(req,res)=>{
+       const [hospital_id, branch_id] = req.body.branchId.split('-');
+        //  let user = new User({
+        //     hospitalId:req.body.hospitalId,
+        //     branchId:branch_id,
+        //     name:req.body.name
+        //     // email:req.body.email,
+        //     // phoneno:req.body.phoneno,
+        //     // technicalno:req.body.technicalno,
+        //     // username:req.body.username,
+        //     // password:req.body.password,
+        //     // usertype:'branch_admin'
+        // });
+
+        // user.save((err)=>{
+        //     if(err){
+        //         res.json({ success:false , message:err });
+        //     } else {
+        //         User.find({ hospitalId: req.body.hospitalId } , (err,hospitalAdminDetail) => {
+        //             if(!hospitalAdminDetail){
+        //                 res.json({ success:false , message: 'No hospital found'});
+        //             } else {
+        //                 res.json({ success:true , message:hospitalAdminDetail});
+        //             }
+                    
+        //         });
+        //     }
+        // });
     });
 
     return router;
