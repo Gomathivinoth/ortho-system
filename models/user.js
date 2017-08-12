@@ -6,14 +6,17 @@ const userSchema = new Schema({
     
     hospitalId:{type:String},
     branchId: {type:String},
-    name : {type: String , required: true},   
-    gender:{type: String, required : true},
-    email:{type: String, required : true},
-    phoneno:{type: Number, required : true},
-    technicalno:{type: Number, required : true},
+    name : {type: String },   
+    gender:{type: String},
+    email:{type: String},
+    phoneno:{type: Number},
+    technicalno:{type: Number},
     username : {type:String , required:true , unique:true},
     password: {type:String , required:true},
-    usertype: {type:String}
+    usertype: {type:String},
+    regno : {type : String},
+    city : {type :String},
+    country : {type :String }
    
 });
 

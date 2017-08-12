@@ -91,7 +91,14 @@ module.exports = (router) => {
             if(err){
                 res.json({ success:false , message:err });
             } else {
-                res.json({ success:true , message:'Hospital added' });
+                   Hospital.find( (err,hospitalAdminDetail) => {
+                    if(!hospitalAdminDetail){
+                        res.json({ success:false , message: 'No hospital found'});
+                    } else {
+                        res.json({ success:true , message:'List Details', data:hospitalDetail, data1:hospitalAdminDetail});
+                    }
+                    
+                });
             }
         });
     });
@@ -105,7 +112,7 @@ module.exports = (router) => {
                 if(!hospitals){
                     res.json({ success:false , message:'No hospitals found!'});
                 } else {
-                    res.json({ success:true , message:hospitals});
+                    res.json({ success:true , message:'Hospital List', data:hospitals});
                 }
             }
         });
@@ -182,7 +189,7 @@ module.exports = (router) => {
                     if(!hospitalAdminDetail){
                         res.json({ success:false , message: 'No hospital found'});
                     } else {
-                        res.json({ success:true , message:hospitalDetail, data:hospitalAdminDetail});
+                        res.json({ success:true , message:'List Details', data:hospitalDetail, data1:hospitalAdminDetail});
                     }
                     
                 });
@@ -209,11 +216,11 @@ module.exports = (router) => {
             if(err){
                 res.json({ success:false , message:err });
             } else {
-                User.find({ hospitalId: req.body.hospitalId } , (err,hospitalAdminDetail) => {
-                    if(!hospitalAdminDetail){
-                        res.json({ success:false , message: 'No hospital found'});
+                User.find({ hospitalId: req.body.hospitalId } , (err,hospitalAdminList) => {
+                    if(!hospitalAdminList){
+                        res.json({ success:false , message: 'No hospital Admin List found'});
                     } else {
-                        res.json({ success:true , message:hospitalAdminDetail});
+                        res.json({ success:true , message:'Admin List', data:hospitalAdminList});
                     }
                     
                 });
@@ -233,41 +240,81 @@ module.exports = (router) => {
                         {
                               res.json({ success:false , message: 'Not a valid hospital id'});
                         } else {
-                            res.json({ success:false , message: hospitalDet});
+                             User.find({ branchId: branch_id } , (err,branchAdmin) => {
+                                if(!branchAdmin){
+                                    res.json({ success:false , message: 'Not a valid branch id'});
+                                } else {
+                                    res.json({ success:true , message:'Branch List', datahospital:hospitalDet, databranch:branchAdmin});
+                                }
+                                
+                            });
                         }
                     }
         });
         
     });
-     router.post('/hospitalBranchAdmin',(req,res)=>{
+     router.post('/addBranchAdmin',(req,res)=>{
        const [hospital_id, branch_id] = req.body.branchId.split('-');
-        //  let user = new User({
-        //     hospitalId:req.body.hospitalId,
-        //     branchId:branch_id,
-        //     name:req.body.name
-        //     // email:req.body.email,
-        //     // phoneno:req.body.phoneno,
-        //     // technicalno:req.body.technicalno,
-        //     // username:req.body.username,
-        //     // password:req.body.password,
-        //     // usertype:'branch_admin'
-        // });
-
-        // user.save((err)=>{
-        //     if(err){
-        //         res.json({ success:false , message:err });
-        //     } else {
-        //         User.find({ hospitalId: req.body.hospitalId } , (err,hospitalAdminDetail) => {
-        //             if(!hospitalAdminDetail){
-        //                 res.json({ success:false , message: 'No hospital found'});
-        //             } else {
-        //                 res.json({ success:true , message:hospitalAdminDetail});
-        //             }
+       console.log(req.body);
+       let user = new User({
+           hospitalId:req.body.hospitalId,
+           branchId:branch_id,
+           name:req.body.name,
+           email:req.body.email,
+           phoneno:req.body.phoneno,
+           technicalno:req.body.technicalno,
+           username:req.body.username,
+           password:req.body.password,
+           usertype:'branch_admin'
+       });
+        user.save((err)=>{
+            if(err){
+                res.json({ success:false , message:err });
+            } else {
+                User.find({ branchId: branch_id } , (err,branchList) => {
+                    if(!branchList){
+                        res.json({ success:false , message: 'No branch List found'});
+                    } else {
+                        res.json({ success:true , message:'Branch admin added',   data:branchList});
+                    }
                     
-        //         });
-        //     }
-        // });
-    });
+                });
+            }
+        });
+     });
+       
+      router.post('/addSurgeon',(req,res)=>{
+       const [hospital_id, branch_id] = req.body.branchId.split('-');
+       console.log(req.body);
+       let user = new User({
+           hospitalId:req.body.hospitalId,
+           branchId:branch_id,
+           regno:req.body.regno,
+           city:req.body.city,
+           country:req.body.country,
+           email:req.body.email,
+           phoneno:req.body.phoneno,
+           username:req.body.username,
+           password:req.body.password,
+           usertype:'surgeon'
+       });
+        user.save((err)=>{
+            if(err){
+                res.json({ success:false , message:err });
+            } else {
+                User.find({ branchId: branch_id } , (err,surgeonList) => {
+                    if(!surgeonList){
+                        res.json({ success:false , message: 'No Surgeon List found'});
+                    } else {
+                        res.json({ success:true , message:'Surgen added', data:surgeonList});
+                    }
+                    
+                });
+            }
+        });
+     });
+       
+ 
 
     return router;
 }
